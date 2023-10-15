@@ -1,0 +1,9 @@
+
+# train and val data as 1) directory: path/images/, 2) file: path/images.txt, or 3) list: [path1/images/, path2/images/]
+train: ./data/gastroscopy/train/images  # 
+val: ./data/gastroscopy/valid/images   # 
+test: ./data/gastroscopy/test/images  # 
+
+# number of classes
+nc: 1
+names: ['polyp']

@@ -1,0 +1,140 @@
+{
+    "os": "Linux-5.15.0-48-generic-x86_64-with-debian-11.0",
+    "python": "3.7.11",
+    "heartbeatAt": "2022-11-28T09:13:22.234612",
+    "startedAt": "2022-11-28T09:13:19.933912",
+    "docker": null,
+    "cuda": null,
+    "args": [
+        "--workers",
+        "8",
+        "--device",
+        "0",
+        "--batch-size",
+        "8",
+        "--data",
+        "data/dms_face.yaml",
+        "--img",
+        "640",
+        "640",
+        "--cfg",
+        "cfg/training/yolov7_dms_face.yaml",
+        "--weights",
+        "",
+        "--name",
+        "yolov7_dms_face",
+        "--hyp",
+        "data/hyp.scratch.p5.yaml"
+    ],
+    "state": "running",
+    "program": "train.py",
+    "codePath": "train.py",
+    "git": {
+        "remote": "https://github.com/WongKinYiu/yolov7.git",
+        "commit": "591c5b0236c127da1bf949975a4f8bb79c6cd156"
+    },
+    "cpu_count": 8,
+    "cpu_count_logical": 16,
+    "cpu_freq": {
+        "current": 2.7264999999999997,
+        "min": 800.0,
+        "max": 4825.0
+    },
+    "cpu_freq_per_core": [
+        {
+            "current": 2.5,
+            "min": 800.0,
+            "max": 4800.0
+        },
+        {
+            "current": 2.5,
+            "min": 800.0,
+            "max": 4900.0
+        },
+        {
+            "current": 2.5,
+            "min": 800.0,
+            "max": 4800.0
+        },
+        {
+            "current": 2.5,
+            "min": 800.0,
+            "max": 4800.0
+        },
+        {
+            "current": 2.5,
+            "min": 800.0,
+            "max": 4800.0
+        },
+        {
+            "current": 2.5,
+            "min": 800.0,
+            "max": 4900.0
+        },
+        {
+            "current": 2.5,
+            "min": 800.0,
+            "max": 4800.0
+        },
+        {
+            "current": 2.63,
+            "min": 800.0,
+            "max": 4800.0
+        },
+        {
+            "current": 2.5,
+            "min": 800.0,
+            "max": 4800.0
+        },
+        {
+            "current": 4.569,
+            "min": 800.0,
+            "max": 4900.0
+        },
+        {
+            "current": 2.5,
+            "min": 800.0,
+            "max": 4800.0
+        },
+        {
+            "current": 2.5,
+            "min": 800.0,
+            "max": 4800.0
+        },
+        {
+            "current": 2.5,
+            "min": 800.0,
+            "max": 4800.0
+        },
+        {
+            "current": 2.5,
+            "min": 800.0,
+            "max": 4900.0
+        },
+        {
+            "current": 2.5,
+            "min": 800.0,
+            "max": 4800.0
+        },
+        {
+            "current": 2.5,
+            "min": 800.0,
+            "max": 4800.0
+        }
+    ],
+    "disk": {
+        "total": 983.2000961303711,
+        "used": 558.6237487792969
+    },
+    "gpu": "NVIDIA GeForce RTX 3080 Laptop GPU",
+    "gpu_count": 1,
+    "gpu_devices": [
+        {
+            "name": "NVIDIA GeForce RTX 3080 Laptop GPU",
+            "memory_total": 17179869184
+        }
+    ],
+    "memory": {
+        "total": 31.036663055419922
+    }
+}
