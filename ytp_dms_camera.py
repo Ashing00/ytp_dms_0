@@ -256,7 +256,7 @@ def detect(save_img=False):
             # Stream results
             if view_img:
                 cv2.namedWindow(str(p), cv2.WINDOW_NORMAL)    # Create window with freedom of dimensions
-                cv2.resizeWindow(str(p), 1280, 1280)
+                #cv2.resizeWindow(str(p), 1280, 1280)
                 cv2.imshow(str(p), im0)
                 c= cv2.waitKey(1) & 0xff
             if c==27:
