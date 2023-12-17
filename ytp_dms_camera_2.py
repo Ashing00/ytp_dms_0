@@ -30,6 +30,105 @@ torchlm.runtime.bind(
          meanface_type="wflw", map_location="cuda", checkpoint=None) 
 ) # will auto download pretrained weights from latest release if pretrained=True
 
+
+def headpose(img,face_points):
+
+    #使用OpenCV的solvePnP函數來計算人臉的旋轉與位移。
+    # 3維模型的座標點 (使用一般的3D人臉模型的座標點)
+    model_points = np.array([
+                                (0.0, 0.0, 0.0),             # Nose tip
+                             (0.0, -330.0, -65.0),        # Chin
+                             (-225.0, 170.0, -135.0),     # Left eye left corner
+                             (225.0, 170.0, -135.0),      # Right eye right corne
+                                (-150.0, -150.0, -125.0),    # Left Mouth corner
+                                (150.0, -150.0, -125.0)      # Right mouth corner                         
+                            ])
+
+    # 焦距
+    size = img.shape
+    focal_length = size[1] 
+    print("Cameria [focal_length]: ", focal_length)
+
+    # 照像機內部成像的中心點(w, h)
+    center = (size[1]/2, size[0]/2)
+
+    # 照像機參數 (Camera internals )
+    camera_matrix = np.array(
+                         [[focal_length, 0, center[0]],
+                         [0, focal_length, center[1]],
+                         [0, 0, 1]], dtype = "double"
+                         )
+ 
+    print("Camera Matrix :\n {0}".format(camera_matrix))
+    # 扭曲係數
+    dist_coeffs = np.zeros((4,1)) # 假設沒有鏡頭的成像扭曲 (no lens distortion)
+
+    # 使用OpenCV的solvePnP函數來計算人臉的旋轉與位移
+    #(success, rotation_vector, translation_vector) = cv2.solvePnP(model_points, image_points, camera_matrix
+    #                                                              , dist_coeffs, flags=cv2.CV_ITERATIVE)
+    # 參數:
+    #   model_points 3維模型的座標點
+    #   image_points 2維圖像的座標點
+    #   camera_matrix 照像機矩陣
+    #   dist_coeffs 照像機扭曲係數
+    #   flags: cv2.SOLVEPNP_ITERATIVE
+    (success, rotation_vector, translation_vector) = cv2.solvePnP(model_points, face_points, camera_matrix
+                                                              , dist_coeffs, flags=cv2.SOLVEPNP_ITERATIVE)
+
+    print("Rotation Vector:\n {0}".format(rotation_vector)) # 旋轉向量
+    print("Translation Vector:\n {0}".format(translation_vector)) # 位移向量
+
+    # 計算歐拉角
+    rvec_matrix = cv2.Rodrigues(rotation_vector)[0]
+    proj_matrix = np.hstack((rvec_matrix, translation_vector))
+    eulerAngles = -cv2.decomposeProjectionMatrix(proj_matrix)[6]
+
+    yaw   = eulerAngles[1]
+    pitch = eulerAngles[0]
+    roll  = eulerAngles[2]
+
+    if pitch > 0:
+        pitch = 180 - pitch
+    elif pitch < 0:
+        pitch = -180 - pitch
+    yaw = -yaw
+
+    print("抬頭(+)/低頭(-) [pitch]: ", pitch) # 抬頭(+)/低頭(-)
+    print("右轉(+)/左轉(-) [yaw]  : ", yaw)   # 右轉(+)/左轉(-)
+    print("右傾(+)/左傾(-) [roll] : ", roll)  # 右傾(+)/左傾(-)
+
+
+    # 投射一個3D的點 (100.0, 0, 0)到2D圖像的座標上
+    (x_end_point2D, jacobian) = cv2.projectPoints(np.array([(100.0, 0.0, 0.0)]), rotation_vector
+                                                 , translation_vector, camera_matrix, dist_coeffs)
+
+    # 投射一個3D的點 (0, 100.0, 0)到2D圖像的座標上
+    (y_end_point2D, jacobian) = cv2.projectPoints(np.array([(0.0, 100.0, 0.0)]), rotation_vector
+                                                 , translation_vector, camera_matrix, dist_coeffs)
+
+    # 投射一個3D的點 (0, 0, 100.0)到2D圖像的座標上
+    (z_end_point2D, jacobian) = cv2.projectPoints(np.array([(0.0, 0.0, 100.0)]), rotation_vector
+                                           , translation_vector, camera_matrix, dist_coeffs)
+
+
+    # 以 Nose tip為中心點畫出x, y, z的軸線
+    p_nose = (int(face_points[0][0]), int(face_points[0][1]))
+
+    p_x = (int(x_end_point2D[0][0][0]), int(x_end_point2D[0][0][1]))
+
+    p_y = (int(y_end_point2D[0][0][0]), int(y_end_point2D[0][0][1]))
+
+    p_z = (int(z_end_point2D[0][0][0]), int(z_end_point2D[0][0][1]))
+
+    cv2.line(img, p_nose, p_x, (0,0,255), 3)  # X軸 (紅色)
+    cv2.line(img, p_nose, p_y, (0,255,0), 3)  # Y軸 (綠色)
+    cv2.line(img, p_nose, p_z, (255,0,0), 3)  # Z軸 (藍色)
+
+
+
+
+
+
 ##head pose -
 
 
@@ -39,6 +138,11 @@ from model2 import MobileNetV2, BlazeLandMark
 
 def plot_one_box2(x, img, color=None, label=None, line_thickness=3,x1=0,y1=0,pre_landmark=None):
     # Plots one bounding box on image img
+
+    
+
+
+    
     tl = line_thickness or round(0.002 * (img.shape[0] + img.shape[1]) / 2) + 1  # line/font thickness
     color = color or [random.randint(0, 255) for _ in range(3)]
     c1, c2 = (int(x[0]), int(x[1])), (int(x[2]), int(x[3]))
@@ -50,8 +154,68 @@ def plot_one_box2(x, img, color=None, label=None, line_thickness=3,x1=0,y1=0,pre
         cv2.rectangle(img, c1, c2, color, -1, cv2.LINE_AA)  # filled
         cv2.putText(img, label, (c1[0], c1[1] - 2), 0, tl / 3, [225, 255, 255], thickness=tf, lineType=cv2.LINE_AA)
         if "face" in label:
+            # 取得單1人臉的68個人臉關鍵點的座標
+            # 鼻尖 Nose tip: 57
+            nose_tip = pre_landmark[0].astype(np.int32)[56:57]
+            # 下巴 Chin: 16
+            chin = pre_landmark[0].astype(np.int32)[15:16]
+            # 左眼左角 Left eye left corner: 60
+            left_eye_corner = pre_landmark[0].astype(np.int32)[59:60]
+            # 右眼右角 Right eye right corner: 72
+            right_eye_corner = pre_landmark[0].astype(np.int32)[71:72]
+            # 嘴巴左角 Left Mouth corner: 76
+            left_mouth_corner = pre_landmark[0].astype(np.int32)[75:76]
+            # 嘴巴右角 Right Mouth corner: 82
+            right_mouth_corner = pre_landmark[0].astype(np.int32)[81:82]
+            # 把相關的6個座標串接起來
+            face_points = np.concatenate((nose_tip, chin, left_eye_corner, right_eye_corner, left_mouth_corner, right_mouth_corner))
+            face_points = face_points.astype(np.double)
+
+            print('face_points=',face_points)
+            print('face_points=',face_points.dtype)
+            print(type(face_points))
+
+            face_points2=[]
+            i=0
             for (x, y) in pre_landmark[0].astype(np.int32):
-                cv2.circle(img, ( x,  y), 1, (0, 0, 255), 2)
+                if i == 16:
+                    chin =[x,y]
+                    face_points2.append(chin)
+                if i == 57:
+                    nose_tip =[x,y]
+                    face_points2.append(nose_tip)
+                if i == 60:
+                    left_eye_corner =[x,y]
+                    face_points2.append(left_eye_corner)
+                if i == 72:
+                    right_eye_corner =[x,y]
+                    face_points2.append(right_eye_corner)
+                if i == 76:
+                    left_mouth_corner =[x,y]
+                    face_points2.append(left_mouth_corner)
+                if i == 82:
+                    right_mouth_corner =[x,y]
+                    face_points2.append(right_mouth_corner)
+                
+                i+=1
+            #face_points = np.concatenate((nose_tip, chin, left_eye_corner, right_eye_corner, left_mouth_corner, right_mouth_corner))
+            #face_points = face_points.astype(np.double)
+            face_points2[0],face_points2[1]=face_points2[1],face_points2[0]
+            face_points_2=np.array(face_points2)
+            face_points_2 = face_points_2.astype(np.double)
+            print('face_points2=',face_points_2)
+            print('face_points_2=',face_points_2.dtype)
+            print(type(face_points_2))
+
+            i=0
+            for (x, y) in face_points_2.astype(np.int32):
+            #for (x, y) in face_points_2:
+                #cv2.circle(img, ( x,  y), 1, (0, 0, 255), 2)
+                #print(x,  y)
+                cv2.putText(img, str(i), ( x,  y), cv2.FONT_HERSHEY_SIMPLEX,  0.2, (0, 255, 255), 1, cv2.LINE_AA)
+                i+=1
+
+            headpose(img,face_points_2)
 
 
 
@@ -59,8 +223,8 @@ def plot_one_box2(x, img, color=None, label=None, line_thickness=3,x1=0,y1=0,pre
 def detect_landmarks(img0):
 
     landmarks, bboxes = torchlm.runtime.forward(img0)
-    print("bboxes=",bboxes)
-    print("landmarks=",landmarks[0])
+    #print("bboxes=",bboxes)
+    #print("landmarks=",landmarks[0])
 
     return landmarks
 
@@ -197,7 +361,7 @@ def detect(save_img=False):
                         #run face landmark model
                         if names[int(c)]=='face' :
                             face_box=[int(xyxy[0]), int(xyxy[1]), int(xyxy[2]), int(xyxy[3])]
-                            print("face_box=",face_box)
+                            #print("face_box=",face_box)
                             pre_landmark=detect_landmarks(im0)
 
                         plot_one_box2(xyxy, im0, label=label, color=colors[int(cls)], line_thickness=1,x1=face_box[0],y1=face_box[1],pre_landmark=pre_landmark)
