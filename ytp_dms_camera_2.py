@@ -156,17 +156,17 @@ def plot_one_box2(x, img, color=None, label=None, line_thickness=3,x1=0,y1=0,pre
         if "face" in label:
             # 取得單1人臉的68個人臉關鍵點的座標
             # 鼻尖 Nose tip: 57
-            nose_tip = pre_landmark[0].astype(np.int32)[56:57]
+            nose_tip = pre_landmark[0].astype(np.int32)[57:58]
             # 下巴 Chin: 16
-            chin = pre_landmark[0].astype(np.int32)[15:16]
+            chin = pre_landmark[0].astype(np.int32)[16:17]
             # 左眼左角 Left eye left corner: 60
-            left_eye_corner = pre_landmark[0].astype(np.int32)[59:60]
+            left_eye_corner = pre_landmark[0].astype(np.int32)[60:61]
             # 右眼右角 Right eye right corner: 72
-            right_eye_corner = pre_landmark[0].astype(np.int32)[71:72]
+            right_eye_corner = pre_landmark[0].astype(np.int32)[72:73]
             # 嘴巴左角 Left Mouth corner: 76
-            left_mouth_corner = pre_landmark[0].astype(np.int32)[75:76]
+            left_mouth_corner = pre_landmark[0].astype(np.int32)[76:77]
             # 嘴巴右角 Right Mouth corner: 82
-            right_mouth_corner = pre_landmark[0].astype(np.int32)[81:82]
+            right_mouth_corner = pre_landmark[0].astype(np.int32)[82:83]
             # 把相關的6個座標串接起來
             face_points = np.concatenate((nose_tip, chin, left_eye_corner, right_eye_corner, left_mouth_corner, right_mouth_corner))
             face_points = face_points.astype(np.double)
@@ -174,48 +174,15 @@ def plot_one_box2(x, img, color=None, label=None, line_thickness=3,x1=0,y1=0,pre
             print('face_points=',face_points)
             print('face_points=',face_points.dtype)
             print(type(face_points))
-
-            face_points2=[]
             i=0
-            for (x, y) in pre_landmark[0].astype(np.int32):
-                if i == 16:
-                    chin =[x,y]
-                    face_points2.append(chin)
-                if i == 57:
-                    nose_tip =[x,y]
-                    face_points2.append(nose_tip)
-                if i == 60:
-                    left_eye_corner =[x,y]
-                    face_points2.append(left_eye_corner)
-                if i == 72:
-                    right_eye_corner =[x,y]
-                    face_points2.append(right_eye_corner)
-                if i == 76:
-                    left_mouth_corner =[x,y]
-                    face_points2.append(left_mouth_corner)
-                if i == 82:
-                    right_mouth_corner =[x,y]
-                    face_points2.append(right_mouth_corner)
-                
-                i+=1
-            #face_points = np.concatenate((nose_tip, chin, left_eye_corner, right_eye_corner, left_mouth_corner, right_mouth_corner))
-            #face_points = face_points.astype(np.double)
-            face_points2[0],face_points2[1]=face_points2[1],face_points2[0]
-            face_points_2=np.array(face_points2)
-            face_points_2 = face_points_2.astype(np.double)
-            print('face_points2=',face_points_2)
-            print('face_points_2=',face_points_2.dtype)
-            print(type(face_points_2))
-
-            i=0
-            for (x, y) in face_points_2.astype(np.int32):
+            for (x, y) in face_points.astype(np.int32):
             #for (x, y) in face_points_2:
                 #cv2.circle(img, ( x,  y), 1, (0, 0, 255), 2)
                 #print(x,  y)
                 cv2.putText(img, str(i), ( x,  y), cv2.FONT_HERSHEY_SIMPLEX,  0.2, (0, 255, 255), 1, cv2.LINE_AA)
                 i+=1
 
-            headpose(img,face_points_2)
+            headpose(img,face_points)
 
 
 
