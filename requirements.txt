@@ -37,4 +37,5 @@ thop  # FLOPs computation
 # albumentations>=1.0.3
 # pycocotools>=2.0  # COCO mAP
 # roboflow
-pip install torchlm>=0.1.6.10
+torchlm>=0.1.6.10
+pygsheets
