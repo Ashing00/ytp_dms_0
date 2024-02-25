@@ -71,7 +71,7 @@ def upload_status():
 
 
 
-def headpose(img,face_points):
+def headpose(img,face_points,pose='head'):
     global Look_Up
     global Look_Down
     global Look_Center
@@ -127,6 +127,14 @@ def headpose(img,face_points):
 
     print("Rotation Vector:\n {0}".format(rotation_vector)) # 旋轉向量
     print("Translation Vector:\n {0}".format(translation_vector)) # 位移向量
+
+
+
+
+
+
+
+
 
     # 計算歐拉角
     rvec_matrix = cv2.Rodrigues(rotation_vector)[0]
@@ -223,36 +231,66 @@ def headpose(img,face_points):
         
     #upload_status()
 
+# Project a 3D point (0, 0, 1000.0) onto the image plane.
+# We use this to draw a line sticking out of the nose
+ 
 
 
+   
 
-
-    # 投射一個3D的點 (100.0, 0, 0)到2D圖像的座標上
-    (x_end_point2D, jacobian) = cv2.projectPoints(np.array([(100.0, 0.0, 0.0)]), rotation_vector
+    #cv2.line(img, p_nose, p_x, (0,0,255), 3)  # X軸 (紅色)
+    #cv2.line(img, p_nose, p_y, (0,255,0), 3)  # Y軸 (綠色)
+    if pose=='head':
+        # 投射一個3D的點 (100.0, 0, 0)到2D圖像的座標上
+        (x_end_point2D, jacobian) = cv2.projectPoints(np.array([(100.0, 0.0, 0.0)]), rotation_vector
                                                  , translation_vector, camera_matrix, dist_coeffs)
 
-    # 投射一個3D的點 (0, 100.0, 0)到2D圖像的座標上
-    (y_end_point2D, jacobian) = cv2.projectPoints(np.array([(0.0, 100.0, 0.0)]), rotation_vector
+        # 投射一個3D的點 (0, 100.0, 0)到2D圖像的座標上
+        (y_end_point2D, jacobian) = cv2.projectPoints(np.array([(0.0, 100.0, 0.0)]), rotation_vector
                                                  , translation_vector, camera_matrix, dist_coeffs)
 
-    # 投射一個3D的點 (0, 0, 100.0)到2D圖像的座標上
-    (z_end_point2D, jacobian) = cv2.projectPoints(np.array([(0.0, 0.0, 100.0)]), rotation_vector
+        # 投射一個3D的點 (0, 0, 100.0)到2D圖像的座標上
+        (z_end_point2D, jacobian) = cv2.projectPoints(np.array([(0.0, 0.0, 1000.0)]), rotation_vector
                                            , translation_vector, camera_matrix, dist_coeffs)
 
 
-    # 以 Nose tip為中心點畫出x, y, z的軸線
-    p_nose = (int(face_points[0][0]), int(face_points[0][1]))
+        # 以 Nose tip為中心點畫出x, y, z的軸線
+        p_nose = (int(face_points[0][0]), int(face_points[0][1]))
 
-    p_x = (int(x_end_point2D[0][0][0]), int(x_end_point2D[0][0][1]))
+        #p_x = (int(x_end_point2D[0][0][0]), int(x_end_point2D[0][0][1]))
 
-    p_y = (int(y_end_point2D[0][0][0]), int(y_end_point2D[0][0][1]))
+        #p_y = (int(y_end_point2D[0][0][0]), int(y_end_point2D[0][0][1]))
 
-    p_z = (int(z_end_point2D[0][0][0]), int(z_end_point2D[0][0][1]))
+        p_z = (int(z_end_point2D[0][0][0]), int(z_end_point2D[0][0][1]))
+        cv2.line(img, p_nose, p_z, (255,0,0), 2)  # Z軸 (藍色)
+    else:
+        # 投射一個3D的點 (100.0, 0, 0)到2D圖像的座標上
+        (x_end_point2D, jacobian) = cv2.projectPoints(np.array([(100.0, 0.0, 0.0)]), rotation_vector
+                                                 , translation_vector, camera_matrix, dist_coeffs)
 
-    cv2.line(img, p_nose, p_x, (0,0,255), 3)  # X軸 (紅色)
-    cv2.line(img, p_nose, p_y, (0,255,0), 3)  # Y軸 (綠色)
-    cv2.line(img, p_nose, p_z, (255,0,0), 3)  # Z軸 (藍色)
+        # 投射一個3D的點 (0, 100.0, 0)到2D圖像的座標上
+        (y_end_point2D, jacobian) = cv2.projectPoints(np.array([(0.0, 100.0, 0.0)]), rotation_vector
+                                                 , translation_vector, camera_matrix, dist_coeffs)
 
+        # 投射一個3D的點 (0, 0, 100.0)到2D圖像的座標上
+        (z_end_point2D, jacobian) = cv2.projectPoints(np.array([(0.0, 0.0, 500.0)]), rotation_vector
+                                           , translation_vector, camera_matrix, dist_coeffs)
+
+
+        # 以 Nose tip為中心點畫出x, y, z的軸線
+        p_nose = (int(face_points[0][0]), int(face_points[0][1]))
+
+        #p_x = (int(x_end_point2D[0][0][0]), int(x_end_point2D[0][0][1]))
+
+        #p_y = (int(y_end_point2D[0][0][0]), int(y_end_point2D[0][0][1]))
+
+        p_z = (int(z_end_point2D[0][0][0]), int(z_end_point2D[0][0][1]))
+
+
+
+
+
+        cv2.line(img, p_nose, p_z, (0,255,0), 2)  # Z軸 (藍色)
     
 
 
@@ -312,7 +350,7 @@ def plot_one_box2(x, img, color=None, label=None, line_thickness=3,x1=0,y1=0,pre
                 cv2.putText(img, 'o', ( x,  y), cv2.FONT_HERSHEY_SIMPLEX,  0.2, (0, 255, 255), 1, cv2.LINE_AA)
                 #i+=1
 
-            headpose(img,face_points)
+            headpose(img,face_points,pose='head')
             
 
 
@@ -347,7 +385,7 @@ def plot_one_box2(x, img, color=None, label=None, line_thickness=3,x1=0,y1=0,pre
                 cv2.putText(img, 'o', ( x,  y), cv2.FONT_HERSHEY_SIMPLEX,  0.2, (0, 255, 255), 1, cv2.LINE_AA)
                 #i+=1
 
-            headpose(img,face_points_eye1)
+            headpose(img,face_points_eye1,pose='eyes')
 
 
 
@@ -381,7 +419,7 @@ def plot_one_box2(x, img, color=None, label=None, line_thickness=3,x1=0,y1=0,pre
                 cv2.putText(img, 'o', ( x,  y), cv2.FONT_HERSHEY_SIMPLEX,  0.2, (0, 255, 255), 1, cv2.LINE_AA)
                 #i+=1
 
-            headpose(img,face_points_eye2)
+            headpose(img,face_points_eye2,pose='eyes')
 
 
 
