@@ -165,7 +165,7 @@ def headpose(img,face_points,pose='head'):
 
     if pitch<0 :
         Look_Up+=1
-    elif pitch> 75 :
+    elif pitch> 70 :
         Look_Down+=1
     elif pitch> 0 and pitch< 75:
         Look_Center+=1
@@ -670,7 +670,7 @@ def detect(save_img=False):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--weights', nargs='+', type=str, default='./runs/train/yolov7_dms_face/weights/best.pt', help='model.pt path(s)')
+    parser.add_argument('--weights', nargs='+', type=str, default='./runs/train/yolov7_dms_face3/weights/best.pt', help='model.pt path(s)')
     parser.add_argument('--source', type=str, default='0', help='source')  # file/folder, 0 for webcam
     parser.add_argument('--img-size', type=int, default=640, help='inference size (pixels)')
     parser.add_argument('--conf-thres', type=float, default=0.45, help='object confidence threshold')
