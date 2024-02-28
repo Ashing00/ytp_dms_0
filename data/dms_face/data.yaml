@@ -1,0 +1,13 @@
+train: ../train/images
+val: ../valid/images
+test: ../test/images
+
+nc: 4
+names: ['drinking', 'face', 'phone_call', 'smoking']
+
+roboflow:
+  workspace: yolov7dms
+  project: dms_yolov7_3
+  version: 1
+  license: CC BY 4.0
+  url: https://universe.roboflow.com/yolov7dms/dms_yolov7_3/dataset/1
